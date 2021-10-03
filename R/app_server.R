@@ -7,4 +7,6 @@
 app_server <- function( input, output, session ) {
   # Your application server logic 
   
+  file <- mod_file_upload_server("file_upload_ui_1")
+  mod_shipmentDT_server("shipmentDT_ui_1", file)
 }

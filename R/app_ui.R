@@ -4,13 +4,26 @@
 #'     DO NOT REMOVE.
 #' @import shiny
 #' @noRd
+#' 
+
+library(shinydashboard)
+library(shinydashboardPlus)
+
 app_ui <- function(request) {
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic 
-    fluidPage(
-      h1("parcel")
+    dashboardPage(
+      dashboardHeader(title = "Parcel Overpack Simulator", titleWidth = 500),
+      dashboardSidebar(
+        width = 350,
+        mod_file_upload_ui("file_upload_ui_1")
+      ),
+      dashboardBody(
+        mod_shipmentDT_ui("shipmentDT_ui_1"),
+        mod_dimselector_ui("dimselector_ui_1")
+      )
     )
   )
 }
@@ -28,7 +41,7 @@ golem_add_external_resources <- function(){
   add_resource_path(
     'www', app_sys('app/www')
   )
- 
+  
   tags$head(
     favicon(),
     bundle_resources(
