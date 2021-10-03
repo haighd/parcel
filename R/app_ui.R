@@ -17,7 +17,7 @@ app_ui <- function(request) {
     dashboardPage(
       dashboardHeader(title = "Parcel Overpack Simulator", titleWidth = 500),
       dashboardSidebar(
-        width = 350,
+        width = 300,
         mod_file_upload_ui("file_upload_ui_1")
       ),
       dashboardBody(

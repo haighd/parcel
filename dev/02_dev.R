@@ -22,12 +22,16 @@ usethis::use_package( "readr" )
 usethis::use_package( "DT" )
 usethis::use_package( "shinydashboardPlus" )
 usethis::use_package( "shinydashboard" )
+usethis::use_package( "htmlwidgets" )
+usethis::use_package( "sortable" )
+usethis::use_package( "magrittr" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module( name = "file_upload" ) # Name of the module
 golem::add_module( name = "shipmentDT" ) # Name of the module
 golem::add_module( name = "dimselector" ) # Name of the module
+
 
 ## Add helper functions ----
 ## Creates fct_* and utils_*

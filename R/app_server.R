@@ -9,4 +9,5 @@ app_server <- function( input, output, session ) {
   
   file <- mod_file_upload_server("file_upload_ui_1")
   mod_shipmentDT_server("shipmentDT_ui_1", file)
+  mod_dimselector_server("dimselector_ui_1")
 }
