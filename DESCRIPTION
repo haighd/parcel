@@ -5,8 +5,12 @@ Authors@R: person('DAN', 'HAIGHT', email = 'DJHAIGHT@GMAIL.COM', role = c('cre',
 Description: A PACKAGE FOR CHOOSING AN OPTIMAL OVERPACK BOX CONFIGURATION FOR ONE, OR MORE, PARCEL SHIPMENTS.
 License: MIT + file LICENSE
 Imports: 
+    attempt,
     config (>= 0.3.1),
+    DT,
+    glue,
     golem (>= 0.3.1),
+    htmltools,
     processx,
     shiny (>= 1.7.1)
 Encoding: UTF-8
