@@ -15,6 +15,7 @@ library(magrittr)
 
 mod_dimselector_ui <- function(id){
   ns <- NS(id)
+  
   tagList(
     fluidRow(
       class = "panel panel-heading",

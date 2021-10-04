@@ -21,8 +21,8 @@ app_ui <- function(request) {
         mod_file_upload_ui("file_upload_ui_1")
       ),
       dashboardBody(
-        mod_shipmentDT_ui("shipmentDT_ui_1"),
-        mod_dimselector_ui("dimselector_ui_1")
+        mod_shipmentDT_ui("shipmentDT_ui_1")
+        # mod_dimselector_ui("dimselector_ui_1")
       )
     )
   )

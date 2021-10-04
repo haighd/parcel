@@ -6,18 +6,21 @@
 #'
 #' @noRd
 
-colnames_to_tags <- function(df){
+colnames_to_tags <- function(x){
+  
   lapply(
-    colnames(df),
+    colnames(x),
     function(co) {
       tag(
         "p",
         list(
-          class = class(df[, co]),
+          class = "character",
+          draggable = TRUE,
           tags$span(class = "glyphicon glyphicon-move"),
           tags$strong(co)
         )
       )
     }
   )
+  
 }
