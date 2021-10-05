@@ -5,9 +5,9 @@ account: haighd
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4804584
-bundleId: 5107781
+bundleId: 5107854
 url: https://haighd.shinyapps.io/parcel/
-when: 1633469974.36549
-lastSyncTime: 1633469974.36649
+when: 1633471766.54609
+lastSyncTime: 1633471766.54609
 asMultiple: FALSE
 asStatic: FALSE
