@@ -25,12 +25,17 @@ usethis::use_package( "shinydashboard" )
 usethis::use_package( "htmlwidgets" )
 usethis::use_package( "sortable" )
 usethis::use_package( "magrittr" )
+usethis::use_package( "tippy" )
+usethis::use_package( "dplyr" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module( name = "file_upload" ) # Name of the module
 golem::add_module( name = "shipmentDT" ) # Name of the module
 golem::add_module( name = "dimselector" ) # Name of the module
+golem::add_module( name = "boxes" ) # Name of the module
+golem::add_module( name = "boxes_body" )
+golem::add_module( name = "simulation" )
 
 
 ## Add helper functions ----

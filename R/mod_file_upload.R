@@ -20,7 +20,7 @@ mod_file_upload_ui <- function(id) {
   tagList(
     shiny::fileInput(
       ns('file1'),
-      h4('Step 1: Upload Shipments'),
+      label = NULL,
       accept = c(
         'text/csv',
         'text/comma-separated-values,text/plain',

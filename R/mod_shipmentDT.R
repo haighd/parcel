@@ -12,21 +12,30 @@ mod_shipmentDT_ui <- function(id){
   
   tagList(
     fluidRow(
-      shinydashboard::box(
-        DT::dataTableOutput(
-          ns("contents")
-        ),
-        width = '100%',
-        title = "Input Data",
-        status = "primary",
-        solidHeader = TRUE
-      ),
-      shinydashboard::box(
-        width = '95%',
-        title = 'Step 2: Identify Column Names',
-        status = 'primary',
-        solidheader = TRUE,
-        uiOutput(ns("bucket"))
+      column(
+        width = 11,
+        shinydashboard::box(
+          DT::dataTableOutput(ns("contents")),
+          width = '100%',
+          title = "Input Data",
+          status = "primary",
+          solidHeader = TRUE,
+          collapsible = TRUE
+        )
+      )
+    ),
+    fluidRow(
+      column(
+        width = 11,
+        shinydashboard::box(
+          uiOutput(ns("bucket")),
+          width = '100%',
+          title = 'Assign Column Names',
+          status = "primary",
+          color = "blue",
+          solidheader = TRUE,
+          collapsible = TRUE
+        )
       )
     )
   )
@@ -41,16 +50,20 @@ mod_shipmentDT_server <- function(id, file1){
     
     df_shipments_upload <- shiny::reactive({
       req(file1())
+      ext <- tools::file_ext(file1()$datapath)
       
-      if (stringr::str_detect(file1()$datapath, ".csv$")) {
+      validate(need(ext %in% c("csv", "tsv", "xls", "xlsx"), "Please upload a csv, tsv/txt, xls, or xlsx file"))
+      
+      
+      if (ext == "csv") {
         df <-
           readr::read_csv(file1()$datapath,
                           col_types = readr::cols(.default = col_character()))
-      } else if (stringr::str_detect(file1()$datapath, ".tsv$|.txt$")) {
+      } else if (ext %in% c("tsv", "txt")) {
         df <-
           readr::read_tsv(file1()$datapath,
                           col_types = readr::cols(.default = col_character()))
-      } else if (stringr::str_detect(file1()$datapath, ".xlsx?$")) {
+      } else if (ext %in% c("xls", "xlsx")) {
         df <-
           readxl::read_excel(file1()$datapath, col_types = 'text')
       }
@@ -63,6 +76,7 @@ mod_shipmentDT_server <- function(id, file1){
       df <- df_shipments_upload()
       DT::datatable(
         df,
+        rownames = FALSE, 
         options = list(
           pageLength = 5,
           searching = FALSE,
@@ -111,12 +125,13 @@ mod_shipmentDT_server <- function(id, file1){
                     options = max_1_item_opts),
           rank_list(text = "Material Weight",
                     labels = NULL,
-                    input_id = "bucket_weight",
+                    input_id = ns("bucket_weight"),
                     options = max_1_item_opts)
         )
       )
       
     })
+    return(list(shipments = reactive({df_shipments_upload()}), weight_col = reactive({input$bucket_weight})))
   })
 }
 
