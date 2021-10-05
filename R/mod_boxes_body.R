@@ -15,16 +15,15 @@ mod_boxes_body_ui <- function(id){
         width = 11,
         shinydashboard::box(
           DT::dataTableOutput(ns("tblBox")),
-          width = '100%',
+          actionButton(ns("removeRow"), "Deleted Selected Container"),
+          width = NULL,
           title = "Overpack Containers",
           status = "primary",
           solidHeader = TRUE,
-          collapsible = TRUE
+          collapsible = TRUE,
+          background = NULL
         )
       )
-    ),
-    fluidRow(
-      actionButton(ns("removeRow"), "Deleted Selected Container")
     )
   )
 }
@@ -44,6 +43,7 @@ mod_boxes_body_server <- function(id, box_data){
         dplyr::rename_with(~ gsub('Length', 'Interior Length', .x)) %>%
         dplyr::rename_with(~ gsub('Width', 'Interior Width', .x)) %>%
         dplyr::rename_with(~ gsub('Height', 'Interior Height', .x)) %>%
+        dplyr::rename_with(~ gsub('Weight', 'Max Weight', .x)) %>%
         filter(!(row_number() %in% idx$idx))
     })
     

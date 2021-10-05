@@ -16,11 +16,12 @@ mod_shipmentDT_ui <- function(id){
         width = 11,
         shinydashboard::box(
           DT::dataTableOutput(ns("contents")),
-          width = '100%',
+          width = NULL,
           title = "Input Data",
           status = "primary",
           solidHeader = TRUE,
-          collapsible = TRUE
+          collapsible = TRUE,
+          background = NULL
         )
       )
     ),
@@ -29,12 +30,13 @@ mod_shipmentDT_ui <- function(id){
         width = 11,
         shinydashboard::box(
           uiOutput(ns("bucket")),
-          width = '100%',
+          width = NULL,
           title = 'Assign Column Names',
           status = "primary",
           color = "blue",
           solidheader = TRUE,
-          collapsible = TRUE
+          collapsible = TRUE,
+          background = NULL
         )
       )
     )
@@ -91,7 +93,7 @@ mod_shipmentDT_server <- function(id, file1){
           width = 3,
           rank_list(text = "Input Column Names",
                     labels = colnames(df_shipments_upload()), 
-                    input_id = "default",
+                    input_id = ns("default"),
                     options = sortable_options(group = "my_shared_group")
           )
         ),
@@ -99,29 +101,33 @@ mod_shipmentDT_server <- function(id, file1){
           width = 3,
           rank_list(text = "Order ID",
                     labels = NULL,
-                    input_id = "bucket_oid",
+                    input_id = ns("bucket_oid"),
                     options = max_1_item_opts),
           rank_list(text = "Material ID",
                     labels = NULL,
-                    input_id = "bucket_sku",
+                    input_id = ns("bucket_sku"),
+                    options = max_1_item_opts),
+          rank_list(text = "Material Quantity",
+                    labels = NULL,
+                    input_id = ns("bucket_quantity"),
                     options = max_1_item_opts)
         ),
         column(
           width = 3,
           rank_list(text = "Material Length",
                     labels = NULL,
-                    input_id = "bucket_dims1",
+                    input_id = ns("bucket_dims1"),
                     options = max_1_item_opts),
           rank_list(text = "Material Width",
                     labels = NULL,
-                    input_id = "bucket_dims2",
+                    input_id = ns("bucket_dims2"),
                     options = max_1_item_opts)
         ),
         column(
           width = 3,
-          rank_list(text = "Material Depth",
+          rank_list(text = "Material Height",
                     labels = NULL,
-                    input_id = "bucket_dims3",
+                    input_id = ns("bucket_dims3"),
                     options = max_1_item_opts),
           rank_list(text = "Material Weight",
                     labels = NULL,
@@ -131,7 +137,19 @@ mod_shipmentDT_server <- function(id, file1){
       )
       
     })
-    return(list(shipments = reactive({df_shipments_upload()}), weight_col = reactive({input$bucket_weight})))
+    
+    return(list(
+      shipments = reactive({df_shipments_upload()}),
+      weight = reactive({input$bucket_weight}),
+      dim1 = reactive({input$bucket_dims1}),
+      dim2 = reactive({input$bucket_dims2}),
+      dim3 = reactive({input$bucket_dims3}),
+      oid = reactive({input$bucket_oid}),
+      sku = reactive({input$bucket_sku}),
+      quantity = reactive({input$bucket_quantity})
+    ))
+    
+    return(shipment_data)
   })
 }
 

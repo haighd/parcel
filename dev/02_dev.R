@@ -27,6 +27,9 @@ usethis::use_package( "sortable" )
 usethis::use_package( "magrittr" )
 usethis::use_package( "tippy" )
 usethis::use_package( "dplyr" )
+usethis::use_package( "gbp" )
+usethis::use_package( "varhandle" )
+usethis::use_package( "data.table" )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
