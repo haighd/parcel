@@ -12,17 +12,20 @@
 library(gbp)
 library(varhandle)
 library(data.table)
+library(shinyjs)
 
 mod_simulation_ui <- function(id){
   ns <- NS(id)
   tagList(
+    shinyjs::useShinyjs(),
     fluidRow(
       column(
         width = 11,
         shinydashboardPlus::box(
-            DT::dataTableOutput(ns("tblRes")),
-            actionButton(ns('runsim'), "Run packing simulation"),
-            actionButton(ns('downloadData'), "Download Simulated Packing List"),
+          id = ns("boxSim"),
+          DT::dataTableOutput(ns("tblRes")),
+          actionButton(ns('runsim'), "Run packing simulation"),
+          downloadButton(ns('downloadData'), "Download"),
           width = NULL,
           title = "Simulation Result",
           status = "primary",
@@ -38,11 +41,78 @@ mod_simulation_ui <- function(id){
 #' simulation Server Functions
 #'
 #' @noRd 
+#' 
+
+library(gbp)
+
 mod_simulation_server <- function(id, box_data, shipment_data){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    result <- eventReactive(input$runsim, {
+    rvSim <- reactiveValues()
+    
+    observeEvent(rvSim, {
+      shinyjs::disable("downloadData")
+      rvSim$res = data.frame()
+      rvSim$cTrigger = FALSE
+      rvSim$bin_df = data.frame()
+      rvSim$bTrigger = FALSE
+      rvSim$dTrigger = FALSE
+      rvSim$rTrigger = TRUE
+      rvSim$validCols = 0
+    }, once = TRUE)
+    
+    observe({
+      req(shipment_data)
+      req(box_data())
+      
+      if(is.list(shipment_data$shipments()) &
+         (length(shipment_data$oid()) > 0) &
+         (length(shipment_data$sku()) > 0) &
+         (length(shipment_data$dim1()) > 0) &
+         (length(shipment_data$dim2()) > 0) &
+         (length(shipment_data$dim3()) > 0) &
+         (length(shipment_data$weight()) > 0) &
+         (length(shipment_data$quantity()) > 0)
+      ){
+        rvSim$validCols <- shipment_data$shipments() %>%
+          dplyr::rename("oid" = shipment_data$oid()) %>%
+          dplyr::rename("sku" = shipment_data$sku()) %>%
+          dplyr::rename("l" = shipment_data$dim1()) %>%
+          dplyr::rename("d" = shipment_data$dim2()) %>%
+          dplyr::rename("h" = shipment_data$dim3()) %>%
+          dplyr::rename("w" = shipment_data$weight()) %>%
+          dplyr::rename("quantity" = shipment_data$quantity()) %>%
+          summarize(across(c(l, d, h, w, quantity), ~ all(varhandle::check.numeric(., na.rm = T)))) %>%
+          rowSums()
+      }
+      
+      print(rvSim$validCols)
+      print(rvSim$cTrigger)
+      print(rvSim$bTrigger)
+      
+      if(rvSim$validCols == 5){
+        rvSim$cTrigger = TRUE
+      }
+    })
+    
+    observe({
+      req(box_data())
+      print(is.list(box_data()))
+      if(is.list(box_data())){
+        rvSim$bTrigger = TRUE
+      }
+    })
+    
+    observe({
+      shinyjs::toggleState(id="runsim", condition=(rvSim$bTrigger & rvSim$cTrigger & rvSim$rTrigger))
+      shinyjs::toggle(id="boxSim", condition=(rvSim$bTrigger & rvSim$cTrigger))
+      shinyjs::toggleState("downloadData", condition=rvSim$dTrigger)
+    })
+    
+    observeEvent(input$runsim, {
+      
+      rvSim$rTrigger = FALSE
       
       bin_df <- box_data() %>%
         dplyr::rename(
@@ -85,12 +155,12 @@ mod_simulation_server <- function(id, box_data, shipment_data){
       
       s <- gbp::bpp_solver(it = it, bn = bn)
       
-      res <- s$it %>%
+      rvSim$res <- s$it %>%
         dplyr::left_join(
           ship_df %>%
             dplyr::select(oid, oid_og) %>%
             distinct(), by = "oid") %>%
-        dplyr::select(-oid, -l, -d, -h, -w) %>%
+        dplyr::select(-oid, -otid, -l, -d, -h, -w) %>%
         dplyr::relocate(oid_og) %>%
         dplyr::rename(
           "bin_id_within_shipment" = tid,
@@ -99,13 +169,15 @@ mod_simulation_server <- function(id, box_data, shipment_data){
         ) %>%
         dplyr::mutate(dplyr::across(tidyselect::vars_select_helpers$where(is.numeric), ~ as.character(.)))
       
-      return(res)
+      rvSim$rTrigger = TRUE
+      rvSim$dTrigger = TRUE
       
     })
     
     output$tblRes <- DT::renderDataTable({
       DT::datatable(
-        df <- result(),
+        # df <- result(),
+        df <- rvSim$res,
         rownames = FALSE,
         options = list(
           pageLength = 5,
@@ -120,7 +192,7 @@ mod_simulation_server <- function(id, box_data, shipment_data){
     output$downloadData <- downloadHandler(
       filename = 'sim_results.csv',
       content = function(file){
-        write.csv(result(), file)
+        write_csv(rvSim$res, file)
       }
     )
   })

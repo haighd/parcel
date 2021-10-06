@@ -29,17 +29,17 @@ app_server <- function(input, output, session) {
   
   boxData <- mod_boxes_server(
     "boxes_ui_1",
-    reactive(values$data),
-    reactive(values$new_data)
+    reactive(values$data)#,
+    # reactive(values$new_data)
   )
   
   finalBoxData <- mod_boxes_body_server(
     "boxes_body_ui_1", 
-    reactive(boxData$data))
+    boxData)
   
   mod_simulation_server(
     "simulation_ui_1",
     finalBoxData,
-    col_names
+    colnames
   )
 }

@@ -7,10 +7,15 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' 
+
+library(shinyjs)
+
 mod_shipmentDT_ui <- function(id){
   ns <- NS(id)
   
   tagList(
+    shinyjs::useShinyjs(),
     fluidRow(
       column(
         width = 11,
@@ -36,14 +41,17 @@ mod_shipmentDT_server <- function(id, file1){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    v <- reactiveValues(trigger = NULL)
+    rvShip <- reactiveValues()
+    
+    observeEvent(rvShip, {
+      rvShip$trigger = FALSE
+    }, once = TRUE)
     
     df_shipments_upload <- shiny::reactive({
       req(file1())
       ext <- tools::file_ext(file1()$datapath)
       
       validate(need(ext %in% c("csv", "tsv", "xls", "xlsx"), "Please upload a csv, tsv/txt, xls, or xlsx file"))
-      
       
       if (ext == "csv") {
         df <-
@@ -62,12 +70,13 @@ mod_shipmentDT_server <- function(id, file1){
       
     })
     
-    observeEvent(v, {
-      hide(id = "boxShipments")
-    }, once = TRUE)
+    observe({
+      req(file1())
+      rvShip$trigger = TRUE
+    })
     
-    observeEvent(df_shipments_upload(), {
-      show(id = "boxShipments")
+    observe({
+      shinyjs::toggle(id = "boxShipments", condition=rvShip$trigger)
     })
     
     output$contents <- DT::renderDataTable({
@@ -85,7 +94,7 @@ mod_shipmentDT_server <- function(id, file1){
       )
     })
     
-    return(reactive(df_shipments_upload()))
+    return(reactive({df_shipments_upload()}))
     
   })
 }

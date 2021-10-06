@@ -14,12 +14,13 @@ library(shinyjs)
 mod_boxes_body_ui <- function(id){
   ns <- NS(id)
   tagList(
-    shinyjs::useShinyjs(),
+    
     fluidRow(
       column(
         width = 11,
         shinydashboardPlus::box(
           id = ns("boxContainers"),
+          shinyjs::useShinyjs(),
           DT::dataTableOutput(ns("tblBox")),
           actionButton(ns("removeRow"), "Deleted Selected Container"),
           width = NULL,
@@ -37,38 +38,48 @@ mod_boxes_body_ui <- function(id){
 #' boxes_body Server Functions
 #'
 #' @noRd 
+
 mod_boxes_body_server <- function(id, box_data){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    idx <- reactiveValues(idx = 0, j = NULL)
+    values <- reactiveValues(
+      i = NULL, 
+      j = NULL,
+      df = data.frame()
+    )
     
-    observeEvent(idx, {
-      idx$j <- idx$j()
+    observeEvent(values,{
+      shinyjs::disable(id="removeRow")
+      shinyjs::hide(id = "boxContainers")
+      values$df <- box_data()
     }, once = TRUE)
     
-    data <- shiny::reactive({
-      req(box_data())
-      df <- box_data() %>%
+    observeEvent(box_data(), {
+      new_data <- box_data() %>%
         dplyr::rename_with(~ gsub('Box_id', 'Box ID', .x)) %>%
         dplyr::rename_with(~ gsub('Length', 'Interior Length', .x)) %>%
         dplyr::rename_with(~ gsub('Width', 'Interior Width', .x)) %>%
         dplyr::rename_with(~ gsub('Height', 'Interior Height', .x)) %>%
-        dplyr::rename_with(~ gsub('Weight', 'Max Weight', .x)) %>%
-        dplyr::filter(!(row_number() %in% idx$idx))
-      
-      if (nrow(df) > 0) {
-        idx$j <- 1
-      } else {
-        idx$j <- NULL
-      }
-      
-      return(df)
+        dplyr::rename_with(~ gsub('Weight', 'Max Weight', .x))
+      values$df <- dplyr::bind_rows(values$df, new_data)
     })
+    
+    observeEvent(values$df, {
+      if (nrow(values$df > 0)){
+        shinyjs::enable(id="removeRow")
+      } else {
+        shinyjs::disable(id="removeRow")
+      }
+    })
+    
+    observeEvent(values$df, {
+      show(id = "boxContainers")
+    }, once = TRUE)
     
     output$tblBox <- DT::renderDataTable({
       DT::datatable(
-        df <- data(),
+        values$df,
         rownames = FALSE,
         options = list(
           pageLength = 5,
@@ -80,17 +91,15 @@ mod_boxes_body_server <- function(id, box_data){
       )
     })
     
-    shiny::observe({
-      shinyjs::toggle(id = "boxContainers", condition=!is.null(idx$j))
-    })
-    
     observeEvent(input$removeRow, {
       
-      idx$idx <- c(idx$idx, input$tblBox_rows_selected)
+      values$df <- values$df %>%
+        dplyr::filter(!(row_number() %in% input$tblBox_rows_selected))
       
     })
     
-    reactive(data())
+    
+    reactive({values$df})
     
   })
 }

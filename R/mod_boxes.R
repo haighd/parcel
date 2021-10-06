@@ -135,18 +135,19 @@ mod_boxes_ui <- function(id){
 #' boxes Server Functions
 #'
 #' @noRd 
-mod_boxes_server <- function(id, data, new_data){
+mod_boxes_server <- function(id, data){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    values <- reactiveValues(data = data, new_data = new_data)
+    values <- reactiveValues(data = data)
     
     observeEvent(values, {
       values$data <- values$data()
-      values$new_data <- values$new_data()
     }, once = TRUE)
     
     observeEvent(input$btn_go, {
+      
+      if (!is.null(values$data)){values$data <- NULL}
       
       box_thickness <- as.numeric(input$box_t)
       
@@ -156,7 +157,7 @@ mod_boxes_server <- function(id, data, new_data){
       
       box_id <- paste(as.character(input$box_l), as.character(input$box_w), as.character(input$box_h), as.character(input$box_wgt), sep = "_")
       
-      values$new_data <- data.frame(
+      values$data <- data.frame(
         Box_id = box_id,
         Length = box_length,
         Width = box_width,
@@ -164,11 +165,10 @@ mod_boxes_server <- function(id, data, new_data){
         Weight = input$box_wgt,
         stringsAsFactors = F)
       
-      values$data <- dplyr::bind_rows(values$data, values$new_data)
       
     })
     
-    return(values)
+    return(reactive({values$data}))
   })
 }
 

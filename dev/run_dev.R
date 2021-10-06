@@ -9,4 +9,6 @@ golem::detach_all_attached()
 golem::document_and_reload()
 
 # Run the application
+
 parcel::run_app()
+

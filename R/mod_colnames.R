@@ -39,23 +39,27 @@ mod_colnames_server <- function(id, shipments){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    v <- reactiveValues(trigger = NULL)
+    rvCol <- reactiveValues()
+    
+    observeEvent(rvCol, {
+      rvCol$trigger = FALSE
+    }, once = TRUE)
     
     shipment_data <- shiny::reactive({
       req(shipments())
-      
       df <- shipments()
       return(df)
-      
     })
     
-    observeEvent(v, {
-      hide(id = "boxBucket")
-    }, once = TRUE)
-    
-    observeEvent(shipment_data(), {
-      show(id = "boxBucket")
+    observe({
+      req(shipments())
+      rvCol$trigger = TRUE
     })
+
+    observe({
+      shinyjs::toggle(id = "boxBucket", condition=rvCol$trigger)
+    })
+    
     
     output$bucket <- renderUI({
       fluidRow(
@@ -109,7 +113,7 @@ mod_colnames_server <- function(id, shipments){
     })
     
     return(list(
-      shipments = reactive({df()}),
+      shipments = reactive({shipment_data()}),
       weight = reactive({input$bucket_weight}),
       dim1 = reactive({input$bucket_dims1}),
       dim2 = reactive({input$bucket_dims2}),
