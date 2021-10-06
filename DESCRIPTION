@@ -19,12 +19,14 @@ Imports:
     processx,
     readr,
     readxl,
+    rlang,
     shiny (>= 1.7.1),
     shinydashboard,
     shinydashboardPlus,
     sortable,
     stringr,
     thinkr,
+    tidyr,
     tippy,
     varhandle
 Encoding: UTF-8

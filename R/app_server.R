@@ -7,8 +7,8 @@
 app_server <- function(input, output, session) {
   # Your application server logic
   
-  values <-
-    reactiveValues(data = data.frame(), new_data = data.frame())
+  # values <- reactiveValues(data = data.frame(), new_data = data.frame())
+  values <- reactiveValues(data = NULL, new_data = NULL)
   
   file <- mod_file_upload_server("file_upload_ui_1")
   shipment_data <- mod_shipmentDT_server("shipmentDT_ui_1", file)

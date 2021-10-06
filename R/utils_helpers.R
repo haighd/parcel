@@ -6,7 +6,7 @@
 #'
 #' @noRd
 
-max_1_item_opts <- sortable_options(
+max_1_item_opts <- sortable::sortable_options(
   swap = TRUE,
   group = list(
     # use a group name to allow sharing between lists
@@ -21,7 +21,7 @@ max_1_item_opts <- sortable_options(
   )
 )
 
-max_2_item_opts <- sortable_options(
+max_2_item_opts <- sortable::sortable_options(
   swap = TRUE,
   group = list(
     # use a group name to allow sharing between lists
@@ -36,7 +36,7 @@ max_2_item_opts <- sortable_options(
   )
 )
 
-max_3_item_opts <- sortable_options(
+max_3_item_opts <- sortable::sortable_options(
   swap = TRUE,
   group = list(
     # use a group name to allow sharing between lists

@@ -7,16 +7,17 @@
 #' 
 
 library(shinydashboard)
-# library(shinydashboardPlus)
+library(magrittr)
+library(shinydashboardPlus)
 
 app_ui <- function(request) {
   tagList(
     # Leave this function for adding external resources
     golem_add_external_resources(),
     # Your application UI logic 
-    dashboardPage(
-      dashboardHeader(title = "Parcel Overpack Simulator", titleWidth = 350),
-      dashboardSidebar(
+    shinydashboard::dashboardPage(
+      shinydashboard::dashboardHeader(title = "Parcel Overpack Simulator", titleWidth = 350),
+      shinydashboard::dashboardSidebar(
         width = 350,
         column(width = 11,
                h4('Step 1: Upload Shipments'),
@@ -31,7 +32,7 @@ app_ui <- function(request) {
                mod_boxes_ui("boxes_ui_1")
         )
       ),
-      dashboardBody(
+      shinydashboard::dashboardBody(
         mod_shipmentDT_ui("shipmentDT_ui_1"),
         mod_boxes_body_ui("boxes_body_ui_1"),
         mod_simulation_ui("simulation_ui_1")

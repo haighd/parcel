@@ -13,7 +13,7 @@ mod_boxes_body_ui <- function(id){
     fluidRow(
       column(
         width = 11,
-        shinydashboard::box(
+        shinydashboardPlus::box(
           DT::dataTableOutput(ns("tblBox")),
           actionButton(ns("removeRow"), "Deleted Selected Container"),
           width = NULL,
@@ -37,14 +37,16 @@ mod_boxes_body_server <- function(id, box_data){
     
     idx <- reactiveValues(idx = 0)
     
-    data <- reactive({
-      box_data() %>%
+    data <- shiny::reactive({
+      req(box_data())
+      df <- box_data() %>%
         dplyr::rename_with(~ gsub('Box_id', 'Box ID', .x)) %>%
         dplyr::rename_with(~ gsub('Length', 'Interior Length', .x)) %>%
         dplyr::rename_with(~ gsub('Width', 'Interior Width', .x)) %>%
         dplyr::rename_with(~ gsub('Height', 'Interior Height', .x)) %>%
         dplyr::rename_with(~ gsub('Weight', 'Max Weight', .x)) %>%
-        filter(!(row_number() %in% idx$idx))
+        dplyr::filter(!(row_number() %in% idx$idx))
+      return(df)
     })
     
     output$tblBox <- DT::renderDataTable({
@@ -52,7 +54,9 @@ mod_boxes_body_server <- function(id, box_data){
         df <- data(),
         rownames = FALSE,
         options = list(
-          dom = 't'
+          pageLength = 5,
+          searching = FALSE,
+          lengthChange = FALSE
         )
       )
     })

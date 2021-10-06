@@ -14,10 +14,10 @@ mod_shipmentDT_ui <- function(id){
     fluidRow(
       column(
         width = 11,
-        shinydashboard::box(
+        shinydashboardPlus::box(
           DT::dataTableOutput(ns("contents")),
           width = NULL,
-          title = "Input Data",
+          title = "Shipment Data",
           status = "primary",
           solidHeader = TRUE,
           collapsible = TRUE,
@@ -28,12 +28,11 @@ mod_shipmentDT_ui <- function(id){
     fluidRow(
       column(
         width = 11,
-        shinydashboard::box(
-          uiOutput(ns("bucket")),
+        shinydashboardPlus::box(
+          # uiOutput(ns("bucket")),
           width = NULL,
           title = 'Assign Column Names',
           status = "primary",
-          color = "blue",
           solidheader = TRUE,
           collapsible = TRUE,
           background = NULL
@@ -60,11 +59,11 @@ mod_shipmentDT_server <- function(id, file1){
       if (ext == "csv") {
         df <-
           readr::read_csv(file1()$datapath,
-                          col_types = readr::cols(.default = col_character()))
+                          col_types = readr::cols(.default = readr::col_character()))
       } else if (ext %in% c("tsv", "txt")) {
         df <-
           readr::read_tsv(file1()$datapath,
-                          col_types = readr::cols(.default = col_character()))
+                          col_types = readr::cols(.default = readr::col_character()))
       } else if (ext %in% c("xls", "xlsx")) {
         df <-
           readxl::read_excel(file1()$datapath, col_types = 'text')
@@ -91,45 +90,45 @@ mod_shipmentDT_server <- function(id, file1){
       fluidRow(
         column(
           width = 3,
-          rank_list(text = "Input Column Names",
+          sortable::rank_list(text = "Input Column Names",
                     labels = colnames(df_shipments_upload()), 
                     input_id = ns("default"),
-                    options = sortable_options(group = "my_shared_group")
+                    options = sortable::sortable_options(group = "my_shared_group")
           )
         ),
         column(
           width = 3,
-          rank_list(text = "Order ID",
+          sortable::rank_list(text = "Order ID",
                     labels = NULL,
                     input_id = ns("bucket_oid"),
                     options = max_1_item_opts),
-          rank_list(text = "Material ID",
+          sortable::rank_list(text = "Material ID",
                     labels = NULL,
                     input_id = ns("bucket_sku"),
                     options = max_1_item_opts),
-          rank_list(text = "Material Quantity",
+          sortable::rank_list(text = "Material Quantity",
                     labels = NULL,
                     input_id = ns("bucket_quantity"),
                     options = max_1_item_opts)
         ),
         column(
           width = 3,
-          rank_list(text = "Material Length",
+          sortable::rank_list(text = "Material Length",
                     labels = NULL,
                     input_id = ns("bucket_dims1"),
                     options = max_1_item_opts),
-          rank_list(text = "Material Width",
+          sortable::rank_list(text = "Material Width",
                     labels = NULL,
                     input_id = ns("bucket_dims2"),
                     options = max_1_item_opts)
         ),
         column(
           width = 3,
-          rank_list(text = "Material Height",
+          sortable::rank_list(text = "Material Height",
                     labels = NULL,
                     input_id = ns("bucket_dims3"),
                     options = max_1_item_opts),
-          rank_list(text = "Material Weight",
+          sortable::rank_list(text = "Material Weight",
                     labels = NULL,
                     input_id = ns("bucket_weight"),
                     options = max_1_item_opts)

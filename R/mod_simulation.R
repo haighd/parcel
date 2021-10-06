@@ -17,14 +17,12 @@ mod_simulation_ui <- function(id){
   ns <- NS(id)
   tagList(
     fluidRow(
-      
-    ),
-    fluidRow(
       column(
         width = 11,
-        shinydashboard::box(
-          DT::dataTableOutput(ns("tblRes")),
-          actionButton(ns('runsim'), "Run packing simulation"),
+        shinydashboardPlus::box(
+            DT::dataTableOutput(ns("tblRes")),
+            actionButton(ns('runsim'), "Run packing simulation"),
+            actionButton(ns('downloadData'), "Download Simulated Packing List"),
           width = NULL,
           title = "Simulation Result",
           status = "primary",
@@ -33,7 +31,7 @@ mod_simulation_ui <- function(id){
           background = NULL
         )
       )
-    ),
+    )
   )
 }
 
@@ -56,7 +54,7 @@ mod_simulation_server <- function(id, box_data, shipment_data){
         ) %>%
         dplyr::mutate(
           id = as.character(id),
-          across(c(l, d, h, w), ~ as.numeric(.))
+          dplyr::across(c(l, d, h, w), ~ as.numeric(.))
         )
       
       ship_df <- shipment_data$shipments() %>%
@@ -69,7 +67,7 @@ mod_simulation_server <- function(id, box_data, shipment_data){
         dplyr::rename("quantity" = shipment_data$quantity()) %>%
         dplyr::mutate(
           sku = as.character(sku),
-          across(c(l, d, h, w, quantity), ~ as.numeric(.))
+          dplyr::across(c(l, d, h, w, quantity), ~ as.numeric(.))
         ) %>%
         tidyr::uncount(quantity)
       
@@ -81,29 +79,26 @@ mod_simulation_server <- function(id, box_data, shipment_data){
           dplyr::mutate(oid_og = oid, oid = as.numeric(factor(oid)))
       }
       
-      oid_df <- ship_df %>%
-        dplyr::select(oid, oid_og)
+      it <- data.table::setDT(ship_df %>% dplyr::select(-oid_og))
       
-      ship_df <- ship_df %>% select(-oid_og)
-
-      it <- data.table::setDT(ship_df)
-
       bn <- data.table::setDT(bin_df)
-
+      
       s <- gbp::bpp_solver(it = it, bn = bn)
       
       res <- s$it %>%
-        dplyr::select(-otid, -x, -y, -z) %>%
-        dplyr::left_join(oid_df, by = "oid") %>%
+        dplyr::left_join(
+          ship_df %>%
+            dplyr::select(oid, oid_og) %>%
+            distinct(), by = "oid") %>%
         dplyr::select(-oid, -l, -d, -h, -w) %>%
         dplyr::relocate(oid_og) %>%
         dplyr::rename(
           "bin_id_within_shipment" = tid,
           "shipment_id" = oid_og,
           "Box ID" = bid
-          ) %>%
-        mutate(across(where(is.numeric), ~ as.character(.)))
-
+        ) %>%
+        dplyr::mutate(dplyr::across(tidyselect::vars_select_helpers$where(is.numeric), ~ as.character(.)))
+      
       return(res)
       
     })
@@ -120,6 +115,12 @@ mod_simulation_server <- function(id, box_data, shipment_data){
       )
     })
     
+    output$downloadData <- downloadHandler(
+      filename = 'sim_results.csv',
+      content = function(file){
+        write.csv(result(), file)
+      }
+    )
   })
 }
 
