@@ -110,7 +110,9 @@ mod_simulation_server <- function(id, box_data, shipment_data){
         options = list(
           pageLength = 5,
           searching = FALSE,
-          lengthChange = FALSE
+          lengthChange = FALSE,
+          autowidth = FALSE,
+          scrollX = TRUE
         )
       )
     })

@@ -15,25 +15,12 @@ mod_shipmentDT_ui <- function(id){
       column(
         width = 11,
         shinydashboardPlus::box(
+          id = ns("boxShipments"),
           DT::dataTableOutput(ns("contents")),
           width = NULL,
           title = "Shipment Data",
           status = "primary",
           solidHeader = TRUE,
-          collapsible = TRUE,
-          background = NULL
-        )
-      )
-    ),
-    fluidRow(
-      column(
-        width = 11,
-        shinydashboardPlus::box(
-          # uiOutput(ns("bucket")),
-          width = NULL,
-          title = 'Assign Column Names',
-          status = "primary",
-          solidheader = TRUE,
           collapsible = TRUE,
           background = NULL
         )
@@ -48,6 +35,8 @@ mod_shipmentDT_ui <- function(id){
 mod_shipmentDT_server <- function(id, file1){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
+    
+    v <- reactiveValues(trigger = NULL)
     
     df_shipments_upload <- shiny::reactive({
       req(file1())
@@ -73,12 +62,22 @@ mod_shipmentDT_server <- function(id, file1){
       
     })
     
+    observeEvent(v, {
+      hide(id = "boxShipments")
+    }, once = TRUE)
+    
+    observeEvent(df_shipments_upload(), {
+      show(id = "boxShipments")
+    })
+    
     output$contents <- DT::renderDataTable({
       df <- df_shipments_upload()
       DT::datatable(
         df,
         rownames = FALSE, 
         options = list(
+          autowidth = FALSE,
+          scrollX = TRUE,
           pageLength = 5,
           searching = FALSE,
           lengthChange = FALSE
@@ -86,69 +85,8 @@ mod_shipmentDT_server <- function(id, file1){
       )
     })
     
-    output$bucket <- renderUI({
-      fluidRow(
-        column(
-          width = 3,
-          sortable::rank_list(text = "Input Column Names",
-                    labels = colnames(df_shipments_upload()), 
-                    input_id = ns("default"),
-                    options = sortable::sortable_options(group = "my_shared_group")
-          )
-        ),
-        column(
-          width = 3,
-          sortable::rank_list(text = "Order ID",
-                    labels = NULL,
-                    input_id = ns("bucket_oid"),
-                    options = max_1_item_opts),
-          sortable::rank_list(text = "Material ID",
-                    labels = NULL,
-                    input_id = ns("bucket_sku"),
-                    options = max_1_item_opts),
-          sortable::rank_list(text = "Material Quantity",
-                    labels = NULL,
-                    input_id = ns("bucket_quantity"),
-                    options = max_1_item_opts)
-        ),
-        column(
-          width = 3,
-          sortable::rank_list(text = "Material Length",
-                    labels = NULL,
-                    input_id = ns("bucket_dims1"),
-                    options = max_1_item_opts),
-          sortable::rank_list(text = "Material Width",
-                    labels = NULL,
-                    input_id = ns("bucket_dims2"),
-                    options = max_1_item_opts)
-        ),
-        column(
-          width = 3,
-          sortable::rank_list(text = "Material Height",
-                    labels = NULL,
-                    input_id = ns("bucket_dims3"),
-                    options = max_1_item_opts),
-          sortable::rank_list(text = "Material Weight",
-                    labels = NULL,
-                    input_id = ns("bucket_weight"),
-                    options = max_1_item_opts)
-        )
-      )
-      
-    })
+    return(reactive(df_shipments_upload()))
     
-    return(list(
-      shipments = reactive({df_shipments_upload()}),
-      weight = reactive({input$bucket_weight}),
-      dim1 = reactive({input$bucket_dims1}),
-      dim2 = reactive({input$bucket_dims2}),
-      dim3 = reactive({input$bucket_dims3}),
-      oid = reactive({input$bucket_oid}),
-      sku = reactive({input$bucket_sku}),
-      quantity = reactive({input$bucket_quantity})
-    ))
-    
-    return(shipment_data)
   })
 }
 

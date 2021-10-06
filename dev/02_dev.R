@@ -32,11 +32,13 @@ usethis::use_package( "varhandle" )
 usethis::use_package( "data.table" )
 usethis::use_package( "rlang" )
 usethis::use_package( 'tidyr' )
+usethis::use_package( 'shinyjs' )
 
 ## Add modules ----
 ## Create a module infrastructure in R/
 golem::add_module( name = "file_upload" ) # Name of the module
 golem::add_module( name = "shipmentDT" ) # Name of the module
+golem::add_module( name = "colnames" )
 golem::add_module( name = "boxes" ) # Name of the module
 golem::add_module( name = "boxes_body" )
 golem::add_module( name = "simulation" )

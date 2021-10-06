@@ -34,6 +34,7 @@ app_ui <- function(request) {
       ),
       shinydashboard::dashboardBody(
         mod_shipmentDT_ui("shipmentDT_ui_1"),
+        mod_colnames_ui("colnames_ui_1"),
         mod_boxes_body_ui("boxes_body_ui_1"),
         mod_simulation_ui("simulation_ui_1")
       )

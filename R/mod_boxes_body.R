@@ -7,13 +7,19 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' 
+
+library(shinyjs)
+
 mod_boxes_body_ui <- function(id){
   ns <- NS(id)
   tagList(
+    shinyjs::useShinyjs(),
     fluidRow(
       column(
         width = 11,
         shinydashboardPlus::box(
+          id = ns("boxContainers"),
           DT::dataTableOutput(ns("tblBox")),
           actionButton(ns("removeRow"), "Deleted Selected Container"),
           width = NULL,
@@ -35,7 +41,11 @@ mod_boxes_body_server <- function(id, box_data){
   moduleServer( id, function(input, output, session){
     ns <- session$ns
     
-    idx <- reactiveValues(idx = 0)
+    idx <- reactiveValues(idx = 0, j = NULL)
+    
+    observeEvent(idx, {
+      idx$j <- idx$j()
+    }, once = TRUE)
     
     data <- shiny::reactive({
       req(box_data())
@@ -46,6 +56,13 @@ mod_boxes_body_server <- function(id, box_data){
         dplyr::rename_with(~ gsub('Height', 'Interior Height', .x)) %>%
         dplyr::rename_with(~ gsub('Weight', 'Max Weight', .x)) %>%
         dplyr::filter(!(row_number() %in% idx$idx))
+      
+      if (nrow(df) > 0) {
+        idx$j <- 1
+      } else {
+        idx$j <- NULL
+      }
+      
       return(df)
     })
     
@@ -56,9 +73,15 @@ mod_boxes_body_server <- function(id, box_data){
         options = list(
           pageLength = 5,
           searching = FALSE,
-          lengthChange = FALSE
+          lengthChange = FALSE,
+          autowidth = FALSE,
+          scrollX = TRUE
         )
       )
+    })
+    
+    shiny::observe({
+      shinyjs::toggle(id = "boxContainers", condition=!is.null(idx$j))
     })
     
     observeEvent(input$removeRow, {
