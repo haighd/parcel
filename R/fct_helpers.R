@@ -6,6 +6,8 @@
 #'
 #' @noRd
 
+library(readr)
+
 colnames_to_tags <- function(x){
   
   lapply(
@@ -23,4 +25,14 @@ colnames_to_tags <- function(x){
     }
   )
   
+}
+
+default_cols <- readr::cols(.default = readr::col_character())
+
+file_csv <- function(path){
+  return(readr::read_csv(path, col_types = default_cols))
+}
+
+file_tsv <- function(path){
+  return(readr::read_tsv(path, col_types = default_cols))
 }

@@ -125,7 +125,10 @@ mod_simulation_server <- function(id, box_data, shipment_data){
         dplyr::mutate(
           id = as.character(id),
           dplyr::across(c(l, d, h, w), ~ as.numeric(.))
-        )
+        ) %>%
+        dplyr::mutate(volume = l * d * h) %>%
+        dplyr::arrange(volume) %>%
+        dplyr::select(-volume)
       
       ship_df <- shipment_data$shipments() %>%
         dplyr::rename("oid" = shipment_data$oid()) %>%
@@ -135,11 +138,24 @@ mod_simulation_server <- function(id, box_data, shipment_data){
         dplyr::rename("h" = shipment_data$dim3()) %>%
         dplyr::rename("w" = shipment_data$weight()) %>%
         dplyr::rename("quantity" = shipment_data$quantity()) %>%
+        select(oid, sku, l, d, h, w, quantity) %>%
         dplyr::mutate(
           sku = as.character(sku),
           dplyr::across(c(l, d, h, w, quantity), ~ as.numeric(.))
         ) %>%
-        tidyr::uncount(quantity)
+        tidyr::uncount(quantity) %>%
+        tibble::rowid_to_column("row_id") %>%
+        mutate(rowid = factor(row_id)) %>%
+        tidyr::pivot_longer(cols = c(l, d, h), names_to="name", values_to="value") %>%
+        group_by(row_id) %>%
+        arrange(desc(value)) %>%
+        mutate(rank = as.character(dplyr::row_number())) %>%
+        ungroup() %>%
+        mutate(name = recode(rank, '1' = 'l', '2' = 'd', '3' = 'h')) %>%
+        select(-row_id, -rank) %>%
+        tidyr::pivot_wider(names_from = name, values_from = value) %>%
+        tidyr::drop_na()
+        
       
       if(all(varhandle::check.numeric(ship_df$oid, na.rm = T))){
         ship_df$oid <- as.numeric(ship_df$oid)

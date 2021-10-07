@@ -18,15 +18,35 @@ mod_file_upload_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
-    shiny::fileInput(
-      ns('file1'),
-      label = NULL,
-      accept = c(
-        'text/csv',
-        'text/comma-separated-values,text/plain',
-        '.tsv',
-        '.csv',
-        '.xlsx'
+    fluidRow(
+      div(
+          shiny::actionLink(
+            inputId = ns('demo'),
+            label = 'Load demo shipment data.'
+          ),
+          style="display:flex;"
+      )
+    ),
+    fluidRow(
+      div(
+          shiny::downloadLink(
+            outputId = ns("template"),
+            label = 'Download shipment data template.'
+          ),
+          style="display:flex;"
+      )
+    ),
+    fluidRow(
+      shiny::fileInput(
+        ns('file1'),
+        label = NULL,
+        accept = c(
+          'text/csv',
+          'text/comma-separated-values,text/plain',
+          '.tsv',
+          '.csv',
+          '.xlsx'
+        )
       )
     )
   )
@@ -39,9 +59,53 @@ mod_file_upload_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    reactive(input$file1)
+    rvFile <- reactiveValues()
+    
+    observeEvent(input$file1, {
+      rvFile$file <- input$file1
+      
+      ext <- tools::file_ext(rvFile$file$datapath)
+      
+      validate(need(ext %in% c("csv", "tsv", "xls", "xlsx"), "Please upload a csv, tsv/txt, xls, or xlsx file"))
+      
+      if (ext == "csv") {
+        df <- file_csv(rvFile$file$datapath)
+      } else if (ext %in% c("tsv", "txt")) {
+        df <- file_tsv(rvFile$file$datapath)
+      } else if (ext %in% c("xls", "xlsx")) {
+        df <- readxl::read_excel(rvFile$file$datapath, col_types = 'text')
+      }
+      
+      rvFile$data <- df
+      
+    })
+    
+    observeEvent(input$demo, {
+      rvFile$data <- file_csv(here::here("inst", "app", "www", "sample1.csv"))
+    })
+    
+    
+    templateDf <- reactive({data.frame(
+      order_id = c("1", "1", "2"),
+      material_id = c("ABC123", "DEF456", "ABC123"),
+      material_length = c("11.25", "13.5", "11.25"),
+      material_width = c("6", "9", "6"),
+      material_height = c("3", "2.5", "3"),
+      material_weight = c("5.25", "11", "5.25"),
+      material_quantity = c("1", "3", "2")
+    )})
+    
+    output$template <- downloadHandler(
+      filename = 'template.csv',
+      content = function(file){
+        write_csv(templateDf(), file)
+      }
+    )
+    
+    return(reactive({rvFile$data}))
     
   })
+  
 }
 
 ## To be copied in the UI

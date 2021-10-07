@@ -47,28 +47,28 @@ mod_shipmentDT_server <- function(id, file1){
       rvShip$trigger = FALSE
     }, once = TRUE)
     
-    df_shipments_upload <- shiny::reactive({
-      req(file1())
-      ext <- tools::file_ext(file1()$datapath)
-      
-      validate(need(ext %in% c("csv", "tsv", "xls", "xlsx"), "Please upload a csv, tsv/txt, xls, or xlsx file"))
-      
-      if (ext == "csv") {
-        df <-
-          readr::read_csv(file1()$datapath,
-                          col_types = readr::cols(.default = readr::col_character()))
-      } else if (ext %in% c("tsv", "txt")) {
-        df <-
-          readr::read_tsv(file1()$datapath,
-                          col_types = readr::cols(.default = readr::col_character()))
-      } else if (ext %in% c("xls", "xlsx")) {
-        df <-
-          readxl::read_excel(file1()$datapath, col_types = 'text')
-      }
-      
-      return(df)
-      
-    })
+    # df_shipments_upload <- shiny::reactive({
+    #   req(file1())
+    #   ext <- tools::file_ext(file1()$datapath)
+    #   
+    #   validate(need(ext %in% c("csv", "tsv", "xls", "xlsx"), "Please upload a csv, tsv/txt, xls, or xlsx file"))
+    #   
+    #   if (ext == "csv") {
+    #     df <-
+    #       readr::read_csv(file1()$datapath,
+    #                       col_types = readr::cols(.default = readr::col_character()))
+    #   } else if (ext %in% c("tsv", "txt")) {
+    #     df <-
+    #       readr::read_tsv(file1()$datapath,
+    #                       col_types = readr::cols(.default = readr::col_character()))
+    #   } else if (ext %in% c("xls", "xlsx")) {
+    #     df <-
+    #       readxl::read_excel(file1()$datapath, col_types = 'text')
+    #   }
+    #   
+    #   return(df)
+    #   
+    # })
     
     observe({
       req(file1())
@@ -80,7 +80,7 @@ mod_shipmentDT_server <- function(id, file1){
     })
     
     output$contents <- DT::renderDataTable({
-      df <- df_shipments_upload()
+      df <- file1()
       DT::datatable(
         df,
         rownames = FALSE, 
@@ -94,7 +94,7 @@ mod_shipmentDT_server <- function(id, file1){
       )
     })
     
-    return(reactive({df_shipments_upload()}))
+    # return(reactive({df_shipments_upload()}))
     
   })
 }

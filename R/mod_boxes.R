@@ -76,7 +76,7 @@ mod_boxes_ui <- function(id){
             tooltip = "Shortest dimension of container, in inches (can be equal to container's length)",
             placement = "right")
         ),
-        p(HTML("<b>Maximum Weight</b>"),
+        p(HTML("<b>Max Weight</b>"),
           span(
             shiny::icon("info-circle"), 
             id = ns("info_box_wgt")
@@ -118,8 +118,8 @@ mod_boxes_ui <- function(id){
             )
           ),
           tippy::tippy_this(
-            elementId = ns("info_box_h"),
-            tooltip = "Sidewall thickness of container, in inches.  Most common cardboard thickness = C",
+            elementId = ns("info_box_t"),
+            tooltip = "Sidewall thickness of container, in inches.  Typical cardboard container: C flute",
             placement = "right")
         )
       )

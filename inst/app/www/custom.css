@@ -1,3 +1,11 @@
 .panel-body {
   draggable: False;
-} 
+}
+
+.well {
+            background-color: transparent;
+            border-color: transparent;
+            padding: 0px;
+            margin-bottom: 0px;
+            border: 0px;
+        }
