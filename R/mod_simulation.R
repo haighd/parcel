@@ -7,6 +7,7 @@
 #' @noRd 
 #'
 #' @importFrom shiny NS tagList 
+#' @importFrom rlang .data
 #' 
 
 library(gbp)
@@ -44,6 +45,10 @@ mod_simulation_ui <- function(id){
 #' 
 
 library(gbp)
+library(tibble)
+library(tidyr)
+library(dplyr)
+library(tidyselect)
 
 mod_simulation_server <- function(id, box_data, shipment_data){
   moduleServer( id, function(input, output, session){
@@ -75,15 +80,15 @@ mod_simulation_server <- function(id, box_data, shipment_data){
          (length(shipment_data$weight()) > 0) &
          (length(shipment_data$quantity()) > 0)
       ){
-        rvSim$validCols <- shipment_data$shipments() %>%
-          dplyr::rename("oid" = shipment_data$oid()) %>%
-          dplyr::rename("sku" = shipment_data$sku()) %>%
-          dplyr::rename("l" = shipment_data$dim1()) %>%
-          dplyr::rename("d" = shipment_data$dim2()) %>%
-          dplyr::rename("h" = shipment_data$dim3()) %>%
-          dplyr::rename("w" = shipment_data$weight()) %>%
-          dplyr::rename("quantity" = shipment_data$quantity()) %>%
-          summarize(across(c(l, d, h, w, quantity), ~ all(varhandle::check.numeric(., na.rm = T)))) %>%
+        rvSim$validCols <- shipment_data$shipments() |>
+          dplyr::rename("oid" = shipment_data$oid()) |>
+          dplyr::rename("sku" = shipment_data$sku()) |>
+          dplyr::rename("l" = shipment_data$dim1()) |>
+          dplyr::rename("d" = shipment_data$dim2()) |>
+          dplyr::rename("h" = shipment_data$dim3()) |>
+          dplyr::rename("w" = shipment_data$weight()) |>
+          dplyr::rename("quantity" = shipment_data$quantity()) |>
+          dplyr::summarize(dplyr::across(c(.data$`l`, .data$`d`, .data$`h`, .data$`w`, .data$`quantity`), ~ all(varhandle::check.numeric(., na.rm = T)))) |>
           rowSums()
       }
       
@@ -114,75 +119,75 @@ mod_simulation_server <- function(id, box_data, shipment_data){
       
       rvSim$rTrigger = FALSE
       
-      bin_df <- box_data() %>%
+      bin_df <- box_data() |>
         dplyr::rename(
-          "id" = `Box ID`,
-          "l" = `Interior Length`,
-          "d" = `Interior Width`,
-          "h" = `Interior Height`,
-          "w" = `Max Weight`
-        ) %>%
+          "id" = .data$`Box ID`,
+          "l" = .data$`Interior Length`,
+          "d" = .data$`Interior Width`,
+          "h" = .data$`Interior Height`,
+          "w" = .data$`Max Weight`
+        ) |>
         dplyr::mutate(
-          id = as.character(id),
-          dplyr::across(c(l, d, h, w), ~ as.numeric(.))
-        ) %>%
-        dplyr::mutate(volume = l * d * h) %>%
-        dplyr::arrange(volume) %>%
-        dplyr::select(-volume)
+          id = as.character(.data$`id`),
+          dplyr::across(c(.data$`l`, .data$`d`, .data$`h`, .data$`w`), ~ as.numeric(.))
+        ) |>
+        dplyr::mutate(`volume` = .data$`l` * .data$`d` * .data$`h`) |>
+        dplyr::arrange(.data$`volume`) |>
+        dplyr::select(-.data$`volume`)
       
-      ship_df <- shipment_data$shipments() %>%
-        dplyr::rename("oid" = shipment_data$oid()) %>%
-        dplyr::rename("sku" = shipment_data$sku()) %>%
-        dplyr::rename("l" = shipment_data$dim1()) %>%
-        dplyr::rename("d" = shipment_data$dim2()) %>%
-        dplyr::rename("h" = shipment_data$dim3()) %>%
-        dplyr::rename("w" = shipment_data$weight()) %>%
-        dplyr::rename("quantity" = shipment_data$quantity()) %>%
-        select(oid, sku, l, d, h, w, quantity) %>%
+      ship_df <- shipment_data$shipments() |>
+        dplyr::rename("oid" = shipment_data$oid()) |>
+        dplyr::rename("sku" = shipment_data$sku()) |>
+        dplyr::rename("l" = shipment_data$dim1()) |>
+        dplyr::rename("d" = shipment_data$dim2()) |>
+        dplyr::rename("h" = shipment_data$dim3()) |>
+        dplyr::rename("w" = shipment_data$weight()) |>
+        dplyr::rename("quantity" = shipment_data$quantity()) |>
+        dplyr::select(.data$`oid`, .data$`sku`, .data$`l`, .data$`d`, .data$`h`, .data$`w`, .data$`quantity`) |>
         dplyr::mutate(
-          sku = as.character(sku),
-          dplyr::across(c(l, d, h, w, quantity), ~ as.numeric(.))
-        ) %>%
-        tidyr::uncount(quantity) %>%
-        tibble::rowid_to_column("row_id") %>%
-        mutate(rowid = factor(row_id)) %>%
-        tidyr::pivot_longer(cols = c(l, d, h), names_to="name", values_to="value") %>%
-        group_by(row_id) %>%
-        arrange(desc(value)) %>%
-        mutate(rank = as.character(dplyr::row_number())) %>%
-        ungroup() %>%
-        mutate(name = recode(rank, '1' = 'l', '2' = 'd', '3' = 'h')) %>%
-        select(-row_id, -rank) %>%
-        tidyr::pivot_wider(names_from = name, values_from = value) %>%
+          sku = as.character(.data$`sku`),
+          dplyr::across(c(.data$`l`, .data$`d`, .data$`h`, .data$`w`, .data$`quantity`), ~ as.numeric(.))
+        ) |>
+        tidyr::uncount(.data$`quantity`) |>
+        tibble::rowid_to_column("row_id") |>
+        dplyr::mutate(rowid = factor(.data$`row_id`)) |>
+        tidyr::pivot_longer(cols = c(.data$`l`, .data$`d`, .data$`h`), names_to="name", values_to="value") |>
+        dplyr::group_by(.data$`row_id`) |>
+        dplyr::arrange(dplyr::desc(.data$`value`)) |>
+        dplyr::mutate(`rank` = as.character(dplyr::row_number())) |>
+        dplyr::ungroup() |>
+        dplyr::mutate(`name` = dplyr::recode(.data$`rank`, '1' = 'l', '2' = 'd', '3' = 'h')) |>
+        dplyr::select(-.data$row_id, -.data$rank) |>
+        tidyr::pivot_wider(names_from = .data$`name`, values_from = .data$`value`) |>
         tidyr::drop_na()
         
       
-      if(all(varhandle::check.numeric(ship_df$oid, na.rm = T))){
-        ship_df$oid <- as.numeric(ship_df$oid)
-        ship_df$oid_og <- ship_df$oid
+      if(all(varhandle::check.numeric(ship_df$`oid`, na.rm = T))){
+        ship_df$`oid` <- as.numeric(ship_df$`oid`)
+        ship_df$`oid_og` <- ship_df$`oid`
       } else {
-        ship_df <- ship_df %>%
-          dplyr::mutate(oid_og = oid, oid = as.numeric(factor(oid)))
+        ship_df <- ship_df |>
+          dplyr::mutate(`oid_og` = .data$`oid`, `oid` = as.numeric(factor(.data$`oid`)))
       }
       
-      it <- data.table::setDT(ship_df %>% dplyr::select(-oid_og))
+      it <- data.table::setDT(ship_df |> dplyr::select(-.data$oid_og))
       
       bn <- data.table::setDT(bin_df)
       
       s <- gbp::bpp_solver(it = it, bn = bn)
       
-      rvSim$res <- s$it %>%
+      rvSim$res <- s$it |>
         dplyr::left_join(
-          ship_df %>%
-            dplyr::select(oid, oid_og) %>%
-            distinct(), by = "oid") %>%
-        dplyr::select(-oid, -otid, -l, -d, -h, -w) %>%
-        dplyr::relocate(oid_og) %>%
+          ship_df |>
+            dplyr::select(.data$`oid`, .data$`oid_og`) |>
+            dplyr::distinct(), by = "oid") |>
+        dplyr::select(-.data$`oid`, -.data$`otid`, -.data$`l`, -.data$`d`, -.data$`h`, -.data$`w`) |>
+        dplyr::relocate(.data$`oid_og`) |>
         dplyr::rename(
-          "bin_id_within_shipment" = tid,
-          "shipment_id" = oid_og,
-          "Box ID" = bid
-        ) %>%
+          "bin_id_within_shipment" = .data$`tid`,
+          "shipment_id" = .data$`oid_og`,
+          "Box ID" = .data$`bid`
+        ) |>
         dplyr::mutate(dplyr::across(tidyselect::vars_select_helpers$where(is.numeric), ~ as.character(.)))
       
       rvSim$rTrigger = TRUE
@@ -208,7 +213,7 @@ mod_simulation_server <- function(id, box_data, shipment_data){
     output$downloadData <- downloadHandler(
       filename = 'sim_results.csv',
       content = function(file){
-        write_csv(rvSim$res, file)
+        readr::write_csv(rvSim$res, file)
       }
     )
   })

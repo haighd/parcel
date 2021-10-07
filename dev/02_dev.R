@@ -33,6 +33,9 @@ usethis::use_package( "data.table" )
 usethis::use_package( "rlang" )
 usethis::use_package( 'tidyr' )
 usethis::use_package( 'shinyjs' )
+usethis::use_package( 'tibble' )
+usethis::use_package( 'here' )
+usethis::use_package( 'tidyselect' )
 
 ## Add modules ----
 ## Create a module infrastructure in R/

@@ -97,7 +97,7 @@ app_ui <- function(request) {
                 br(),
                 paste0(
                   "A bin id of '0'",
-                  ", (which will be accompanied by x, y and z values",
+                  ", which will be accompanied by x, y and z values",
                   " of '-1', indicates an item that was not fit into",
                   " an overpack box; either add larger overpack boxes",
                   " , or consider those items for 'free case' shipping."

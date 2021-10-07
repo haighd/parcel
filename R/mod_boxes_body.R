@@ -56,11 +56,11 @@ mod_boxes_body_server <- function(id, box_data){
     }, once = TRUE)
     
     observeEvent(box_data(), {
-      new_data <- box_data() %>%
-        dplyr::rename_with(~ gsub('Box_id', 'Box ID', .x)) %>%
-        dplyr::rename_with(~ gsub('Length', 'Interior Length', .x)) %>%
-        dplyr::rename_with(~ gsub('Width', 'Interior Width', .x)) %>%
-        dplyr::rename_with(~ gsub('Height', 'Interior Height', .x)) %>%
+      new_data <- box_data() |>
+        dplyr::rename_with(~ gsub('Box_id', 'Box ID', .x)) |>
+        dplyr::rename_with(~ gsub('Length', 'Interior Length', .x)) |>
+        dplyr::rename_with(~ gsub('Width', 'Interior Width', .x)) |>
+        dplyr::rename_with(~ gsub('Height', 'Interior Height', .x)) |>
         dplyr::rename_with(~ gsub('Weight', 'Max Weight', .x))
       values$df <- dplyr::bind_rows(values$df, new_data)
     })
@@ -74,7 +74,7 @@ mod_boxes_body_server <- function(id, box_data){
     })
     
     observeEvent(values$df, {
-      show(id = "boxContainers")
+      shinyjs::show(id = "boxContainers")
     }, once = TRUE)
     
     output$tblBox <- DT::renderDataTable({
@@ -93,8 +93,8 @@ mod_boxes_body_server <- function(id, box_data){
     
     observeEvent(input$removeRow, {
       
-      values$df <- values$df %>%
-        dplyr::filter(!(row_number() %in% input$tblBox_rows_selected))
+      values$df <- values$df |>
+        dplyr::filter(!(dplyr::row_number() %in% input$tblBox_rows_selected))
       
     })
     

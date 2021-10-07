@@ -13,9 +13,11 @@ Imports:
     gbp,
     glue,
     golem (>= 0.3.1),
+    here,
     htmltools,
     htmlwidgets,
     magrittr,
+    pkgload,
     processx,
     readr,
     readxl,
@@ -27,7 +29,9 @@ Imports:
     sortable,
     stringr,
     thinkr,
+    tibble,
     tidyr,
+    tidyselect,
     tippy,
     varhandle
 Encoding: UTF-8

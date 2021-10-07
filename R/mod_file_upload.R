@@ -12,6 +12,7 @@ library(stringr)
 library(readxl)
 library(readr)
 library(DT)
+library(here)
 
 mod_file_upload_ui <- function(id) {
   
@@ -98,7 +99,7 @@ mod_file_upload_server <- function(id) {
     output$template <- downloadHandler(
       filename = 'template.csv',
       content = function(file){
-        write_csv(templateDf(), file)
+        readr::write_csv(templateDf(), file)
       }
     )
     
