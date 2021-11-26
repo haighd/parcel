@@ -82,7 +82,8 @@ mod_file_upload_server <- function(id) {
     })
     
     observeEvent(input$demo, {
-      rvFile$data <- file_csv(here::here("inst", "app", "www", "sample1.csv"))
+      # rvFile$data <- file_csv(here::here("inst", "app", "www", "sample1.csv"))
+      rvFile$data <- file_csv(system.file("extdata", "sample1.csv", package = "parcel"))
     })
     
     

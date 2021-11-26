@@ -22,17 +22,22 @@ mod_simulation_ui <- function(id){
     fluidRow(
       column(
         width = 11,
-        shinydashboardPlus::box(
-          id = ns("boxSim"),
-          DT::dataTableOutput(ns("tblRes")),
-          actionButton(ns('runsim'), "Run packing simulation"),
-          downloadButton(ns('downloadData'), "Download"),
-          width = NULL,
-          title = "Simulation Result",
-          status = "primary",
-          solidHeader = TRUE,
-          collapsible = TRUE,
-          background = NULL
+        shinyjs::hidden(
+          div(
+            id = ns("boxSim"),
+            shinydashboardPlus::box(
+              # id = ns("boxSim"),
+              DT::dataTableOutput(ns("tblRes")),
+              actionButton(ns('runsim'), "Run packing simulation"),
+              downloadButton(ns('downloadData'), "Download"),
+              width = NULL,
+              title = "Simulation Result",
+              status = "primary",
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              background = NULL
+            )
+          )
         )
       )
     )
@@ -160,7 +165,7 @@ mod_simulation_server <- function(id, box_data, shipment_data){
         dplyr::select(-.data$row_id, -.data$rank) |>
         tidyr::pivot_wider(names_from = .data$`name`, values_from = .data$`value`) |>
         tidyr::drop_na()
-        
+      
       
       if(all(varhandle::check.numeric(ship_df$`oid`, na.rm = T))){
         ship_df$`oid` <- as.numeric(ship_df$`oid`)

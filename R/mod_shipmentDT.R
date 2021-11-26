@@ -19,15 +19,20 @@ mod_shipmentDT_ui <- function(id){
     fluidRow(
       column(
         width = 11,
-        shinydashboardPlus::box(
-          id = ns("boxShipments"),
-          DT::dataTableOutput(ns("contents")),
-          width = NULL,
-          title = "Shipment Data",
-          status = "primary",
-          solidHeader = TRUE,
-          collapsible = TRUE,
-          background = NULL
+        shinyjs::hidden(
+          div(
+            id = ns("boxShipments"),
+            shinydashboardPlus::box(
+              # id = ns("boxShipments"),
+              DT::dataTableOutput(ns("contents")),
+              width = NULL,
+              title = "Shipment Data",
+              status = "primary",
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              background = NULL
+            )
+          )
         )
       )
     )

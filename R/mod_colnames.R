@@ -17,15 +17,20 @@ mod_colnames_ui <- function(id){
     fluidRow(
       column(
         width = 11,
-        shinydashboardPlus::box(
-          id = ns("boxBucket"),
-          uiOutput(ns("bucket")),
-          width = NULL,
-          title = "Assign Column Names",
-          status = "primary",
-          solidHeader = TRUE,
-          collapsible = TRUE,
-          background = NULL
+        shinyjs::hidden(
+          div(
+            id = ns("boxBucket"),
+            shinydashboardPlus::box(
+              # id = ns("boxBucket"),
+              uiOutput(ns("bucket")),
+              width = NULL,
+              title = "Assign Column Names",
+              status = "primary",
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              background = NULL
+            )
+          )
         )
       )
     )
@@ -55,7 +60,7 @@ mod_colnames_server <- function(id, shipments){
       req(shipments())
       rvCol$trigger = TRUE
     })
-
+    
     observe({
       shinyjs::toggle(id = "boxBucket", condition=rvCol$trigger)
     })

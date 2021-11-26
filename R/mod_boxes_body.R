@@ -18,17 +18,22 @@ mod_boxes_body_ui <- function(id){
     fluidRow(
       column(
         width = 11,
-        shinydashboardPlus::box(
-          id = ns("boxContainers"),
-          shinyjs::useShinyjs(),
-          DT::dataTableOutput(ns("tblBox")),
-          actionButton(ns("removeRow"), "Deleted Selected Container"),
-          width = NULL,
-          title = "Overpack Containers",
-          status = "primary",
-          solidHeader = TRUE,
-          collapsible = TRUE,
-          background = NULL
+        shinyjs::hidden(
+          div(
+            id = ns("boxContainers"),
+            shinydashboardPlus::box(
+              # id = ns("boxContainers"),
+              shinyjs::useShinyjs(),
+              DT::dataTableOutput(ns("tblBox")),
+              actionButton(ns("removeRow"), "Deleted Selected Container"),
+              width = NULL,
+              title = "Overpack Containers",
+              status = "primary",
+              solidHeader = TRUE,
+              collapsible = TRUE,
+              background = NULL
+            )
+          )
         )
       )
     )
@@ -51,7 +56,7 @@ mod_boxes_body_server <- function(id, box_data){
     
     observeEvent(values,{
       shinyjs::disable(id="removeRow")
-      shinyjs::hide(id = "boxContainers")
+      # shinyjs::hide(id = "boxContainers")
       values$df <- box_data()
     }, once = TRUE)
     
