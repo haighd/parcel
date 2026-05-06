@@ -1,6 +1,6 @@
 FROM rocker/r-ver:4.1.2
-RUN apt-get update && apt-get install -y  git-core libcairo2-dev libcurl4-openssl-dev libgit2-dev libgl1-mesa-dev libglu1-mesa-dev libicu-dev libpng-dev libssl-dev libxml2-dev make pandoc pandoc-citeproc zlib1g-dev && rm -rf /var/lib/apt/lists/*
-RUN echo "options(repos = c(CRAN = 'https://cran.rstudio.com/'), download.file.method = 'libcurl', Ncpus = 4)" >> /usr/local/lib/R/etc/Rprofile.site
+RUN apt-get update && apt-get install -y git-core libcairo2-dev libcurl4-openssl-dev libgit2-dev libgl1-mesa-dev libglu1-mesa-dev libicu-dev libpng-dev libssl-dev libxml2-dev libuv1-dev make pandoc zlib1g-dev && rm -rf /var/lib/apt/lists/*
+RUN echo "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux__/bullseye/2021-12-01'), download.file.method = 'libcurl', Ncpus = 4)" >> /usr/local/lib/R/etc/Rprofile.site
 RUN R -e 'install.packages("remotes")'
 RUN Rscript -e 'remotes::install_version("magrittr",upgrade="never", version = "2.0.1")'
 RUN Rscript -e 'remotes::install_version("tibble",upgrade="never", version = "3.1.6")'
